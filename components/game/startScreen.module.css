@@ -1,0 +1,271 @@
+/* Start screen: loading -> "Press Start" -> doors open. Pure CSS animation, so the
+   existing a11y-reduce-motion / prefers-reduced-motion rules in globals.css still apply. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  font-family: var(--font-orbitron, "Orbitron", ui-sans-serif, system-ui, sans-serif);
+}
+.root[data-phase="opening"] {
+  pointer-events: none;
+}
+
+/* ---- the two doors that slide apart ---- */
+.half {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background: #030712;
+  transition: transform 900ms cubic-bezier(0.77, 0, 0.18, 1) 300ms;
+  will-change: transform;
+}
+.left { left: 0; }
+.right { right: 0; }
+.root[data-phase="opening"] .left { transform: translateX(-102%); }
+.root[data-phase="opening"] .right { transform: translateX(102%); }
+
+.seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 1px);
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, #22d3ee 30%, #a78bfa 70%, transparent);
+  box-shadow: 0 0 24px 6px rgba(34, 211, 238, 0.55);
+  opacity: 0;
+}
+.root[data-phase="opening"] .seam {
+  animation: seamFlash 1100ms ease-out 250ms both;
+}
+
+/* ---- everything on top of the doors ---- */
+.content {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+.root[data-phase="opening"] .content {
+  animation: leave 450ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.grid {
+  position: absolute;
+  inset: -48px;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+  animation: drift 6s linear infinite;
+}
+
+.orb {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.orbA {
+  top: -25vmax;
+  left: -20vmax;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.2), transparent 65%);
+  animation: floatA 9s ease-in-out infinite alternate;
+}
+.orbB {
+  bottom: -28vmax;
+  right: -22vmax;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.24), transparent 65%);
+  animation: floatB 11s ease-in-out infinite alternate;
+}
+
+.center {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(78vmin, 30rem);
+  aspect-ratio: 1;
+  margin: calc(min(78vmin, 30rem) / -2) 0 0 calc(min(78vmin, 30rem) / -2);
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 15%, rgba(34, 211, 238, 0.7) 30%, transparent 45% 60%, rgba(167, 139, 250, 0.7) 78%, transparent 92%);
+  -webkit-mask-image: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  mask-image: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  opacity: 0.8;
+  animation: spin 9s linear infinite;
+  pointer-events: none;
+}
+
+.kicker {
+  position: relative;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(103, 232, 249, 0.85);
+  opacity: 0;
+  animation: fadeUp 700ms ease-out 800ms forwards;
+}
+
+.title {
+  position: relative;
+  margin: 0.6rem 0 0;
+  font-size: clamp(2.6rem, 11vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: #f8fafc;
+  text-shadow: 0 0 28px rgba(34, 211, 238, 0.55), 0 0 60px rgba(139, 92, 246, 0.4);
+}
+.letter {
+  display: inline-block;
+  opacity: 0;
+  animation: rise 800ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: calc(var(--i) * 80ms + 150ms);
+}
+
+/* loading bar / start button share one slot so nothing jumps when they swap */
+.slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 5.5rem;
+  margin-top: 2.2rem;
+}
+
+.bar {
+  width: min(16rem, 70vw);
+  opacity: 0;
+  animation: fadeUp 600ms ease-out 1000ms forwards;
+}
+.track {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.fill {
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #8b5cf6);
+  transition: width 500ms ease-out;
+  overflow: hidden;
+}
+.fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: translateX(-100%);
+  animation: sheen 1.4s ease-in-out infinite;
+}
+.pct {
+  margin-top: 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.start {
+  position: relative;
+  cursor: pointer;
+  padding: 0.95rem 2.6rem;
+  border: 1px solid rgba(103, 232, 249, 0.6);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(139, 92, 246, 0.28));
+  color: #ecfeff;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  animation: pop 600ms cubic-bezier(0.2, 1.4, 0.4, 1) both, glowPulse 1.8s ease-in-out 600ms infinite;
+  transition: transform 150ms ease, background 150ms ease;
+}
+.start:hover { transform: scale(1.05); background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(139, 92, 246, 0.4)); }
+.start:active { transform: scale(0.97); }
+.start:focus-visible { outline: 2px solid #67e8f9; outline-offset: 4px; }
+.hint {
+  margin-top: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.tip {
+  position: relative;
+  margin-top: 1.6rem;
+  min-height: 1.2rem;
+  max-width: 22rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.8rem;
+  color: rgba(148, 163, 184, 0.9);
+  animation: tipIn 600ms ease-out both;
+}
+
+/* HUD slides in after the doors open (class used by GameRoot) */
+.hudEnter {
+  animation: hudIn 800ms cubic-bezier(0.2, 0.8, 0.2, 1) 450ms both;
+}
+
+@keyframes drift { to { transform: translateY(48px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes floatA { to { transform: translate(8vmax, 6vmax) scale(1.08); } }
+@keyframes floatB { to { transform: translate(-7vmax, -5vmax) scale(1.1); } }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes tipIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sheen { to { transform: translateX(100%); } }
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 16px 0 rgba(34, 211, 238, 0.35), inset 0 0 12px rgba(34, 211, 238, 0.12); }
+  50% { box-shadow: 0 0 38px 6px rgba(34, 211, 238, 0.6), inset 0 0 18px rgba(139, 92, 246, 0.25); }
+}
+@keyframes leave {
+  to { opacity: 0; transform: scale(1.12); filter: blur(6px); }
+}
+@keyframes seamFlash {
+  0% { opacity: 0; transform: scaleY(0.2); }
+  30% { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes hudIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid, .orb, .ring, .start, .fill::after { animation: none; }
+  .letter, .kicker, .bar, .tip { opacity: 1; animation: none; }
+  .start { opacity: 1; }
+}

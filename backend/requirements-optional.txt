@@ -1,0 +1,2 @@
+# Better retrieval quality (neural embeddings). Large download (~1 GB with torch).
+sentence-transformers>=3.0

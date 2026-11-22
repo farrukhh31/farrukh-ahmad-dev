@@ -1,0 +1,22 @@
+# Render Blueprint for the RAG chatbot backend (Module 4).
+# Render dashboard -> New -> Blueprint -> pick this repo. The frontend goes on Vercel (see docs/DEPLOYMENT.md).
+services:
+  - type: web
+    name: farrukh-portfolio-chatbot
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free            # free instances sleep after ~15 min idle; the first question afterwards is slow
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: CHAT_SHARED_SECRET
+        sync: false        # you type it in the dashboard; must equal CHAT_SHARED_SECRET on Vercel
+      - key: ANTHROPIC_API_KEY
+        sync: false        # optional - without it the bot quotes the portfolio documents directly
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-5-5
+      - key: CORS_ORIGINS
+        sync: false        # your Vercel URL, e.g. https://farrukh-portfolio.vercel.app
+      - key: RATE_LIMIT_PER_MIN
+        value: "20"
