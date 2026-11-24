@@ -1536,6 +1536,32 @@ html.a11y-reduce-motion .pm-rise, html.a11y-reduce-motion .pm-beacon { animation
   box-shadow: 0 32px 80px -24px rgba(0, 0, 0, 0.8), 0 0 70px -26px color-mix(in srgb, var(--chat-accent) 60%, transparent);
   backdrop-filter: blur(24px);
 }
+/* Avatar-style aura: rotating cyan/violet border + drifting glows (same look as the player card) */
+.chat-drawer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.5px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: conic-gradient(from var(--angle), transparent 0%, #22d3ee 18%, transparent 38%, transparent 55%, #a78bfa 75%, transparent 95%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: aura-rotate 6s linear infinite;
+}
+.chat-drawer::after {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 88% 6%, rgba(34, 211, 238, 0.2), transparent 38%),
+    radial-gradient(circle at 8% 96%, rgba(139, 92, 246, 0.24), transparent 42%);
+  animation: aura-float 9s ease-in-out infinite;
+}
 .chat-drawer[data-side="left"] { right: auto; left: max(1.5rem, env(safe-area-inset-left)); }
 @media (min-width: 640px) { .chat-drawer[data-wide] { --chat-w: 38rem; } }
 @media (max-width: 639px) {
@@ -1753,4 +1779,20 @@ html.a11y-reduce-motion .pm-rise, html.a11y-reduce-motion .pm-beacon { animation
   .chat-sub[data-busy] .chat-dot, .chat-rich[data-typing] > p:last-child::after,
   .chat-rich[data-typing] > ul:last-child > li:last-child::after, .chat-rich[data-typing] > ol:last-child > li:last-child::after { animation: none !important; }
   .chat-seg__thumb, .chat-launcher { transition: none; }
+}
+
+/* Launch card: premium game-HUD frame (cut corners, scanlines, glow) */
+.hud-clip {
+  --cut: 22px;
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+}
+@media (max-width: 639px) { .hud-clip { --cut: 14px; } }
+.hud-glow { filter: drop-shadow(0 0 42px rgba(34, 211, 238, 0.16)) drop-shadow(0 0 70px rgba(139, 92, 246, 0.12)); }
+.hud-scan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+  mix-blend-mode: overlay;
 }
