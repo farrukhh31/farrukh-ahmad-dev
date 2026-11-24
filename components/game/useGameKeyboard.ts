@@ -43,6 +43,8 @@ export function useGameKeyboard() {
         return;
       }
       if (GAME_KEYS.has(e.code)) {
+        // while a panel or dialog is open the keys belong to it (scrolling, focus), not to the game
+        if (game.openPanel || game.helpOpen || game.settingsOpen) return;
         e.preventDefault();
         input.keys.add(e.code);
       }

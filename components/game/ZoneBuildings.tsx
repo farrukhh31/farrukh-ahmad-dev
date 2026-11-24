@@ -6,6 +6,7 @@ import * as THREE from "three";
 import { glowColor } from "./Glow";
 import { atmosphere, motion } from "@/lib/game/atmosphere";
 import { playerState } from "@/lib/game/input";
+import { useGame } from "@/lib/game/store";
 import { ZONE_BY_ID } from "@/lib/game/zones";
 import { Text } from "@react-three/drei";
 import { Projects } from "@/components/Projects/Projects-s";
@@ -269,7 +270,8 @@ function CinemaScreen({ color }: { color: string }) {
     const el = video.current;
     if (!el || !ready.current) return;
     const z = ZONE_BY_ID.cinema.position;
-    const near = Math.hypot(playerState.x - z[0], playerState.z - z[2]) < 30;
+    // the panel plays its own copy, so the 3D screen rests while the panel is open
+    const near = Math.hypot(playerState.x - z[0], playerState.z - z[2]) < 30 && useGame.getState().openPanel !== "cinema";
     if (near && el.paused) void el.play().catch(() => {});
     else if (!near && !el.paused) el.pause();
   });
@@ -366,6 +368,89 @@ function CommsTower({ color }: { color: string }) {
   );
 }
 
+function ResumeHangar({ color }: { color: string }) {
+  const sheet = useRef<THREE.Group>(null);
+  useFrame((st) => {
+    if (motion.reduced || !sheet.current) return;
+    sheet.current.position.y = 3.2 + Math.sin(st.clock.elapsedTime * 1.4) * 0.18;
+    sheet.current.rotation.y = Math.sin(st.clock.elapsedTime * 0.5) * 0.25;
+  });
+  return (
+    <group>
+      {/* hangar: two walls and a roof arch */}
+      {[-2.2, 2.2].map((x) => (
+        <mesh key={x} position={[x, 1.6, 0]}>
+          <boxGeometry args={[0.5, 3.2, 3.6]} />
+          <Body />
+        </mesh>
+      ))}
+      <mesh position={[0, 3.4, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.55, 0.55, 5, 16, 1, false, 0, Math.PI]} />
+        <Body />
+      </mesh>
+      <mesh position={[0, 0.06, 1.2]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.5, 1.65, 48]} />
+        <Neon color={color} />
+      </mesh>
+      {/* floating resume sheet */}
+      <group ref={sheet} position={[0, 3.2, 0.4]}>
+        <mesh>
+          <boxGeometry args={[1.5, 2, 0.08]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.6} />
+        </mesh>
+        {[0.55, 0.2, -0.15, -0.5].map((y, i) => (
+          <mesh key={y} position={[i === 0 ? -0.15 : 0, y, 0.05]}>
+            <boxGeometry args={[i === 0 ? 0.9 : 1.1, 0.09, 0.02]} />
+            <Neon color={color} intensity={1.4} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
+function HireHarbour({ color }: { color: string }) {
+  const flag = useRef<THREE.Mesh>(null);
+  useFrame((st) => {
+    if (motion.reduced || !flag.current) return;
+    flag.current.rotation.y = Math.sin(st.clock.elapsedTime * 2) * 0.25;
+  });
+  return (
+    <group>
+      {/* dock */}
+      <mesh position={[0, 0.2, 0.5]}>
+        <boxGeometry args={[4.4, 0.4, 2.2]} />
+        <Body />
+      </mesh>
+      {/* mast with a pennant */}
+      <mesh position={[0, 3.2, -0.2]}>
+        <cylinderGeometry args={[0.1, 0.14, 6, 8]} />
+        <Body />
+      </mesh>
+      <mesh ref={flag} position={[0.7, 5.4, -0.2]}>
+        <boxGeometry args={[1.3, 0.7, 0.05]} />
+        <Neon color={color} />
+      </mesh>
+      {/* signboard */}
+      <mesh position={[0, 1.3, 1.5]}>
+        <boxGeometry args={[2.6, 1.3, 0.2]} />
+        <Body color="#1d2a4a" />
+      </mesh>
+      <mesh position={[0, 1.3, 1.62]}>
+        <boxGeometry args={[2.1, 0.22, 0.04]} />
+        <Neon color={color} intensity={1.8} />
+      </mesh>
+      {/* lanterns */}
+      {[-1.9, 1.9].map((x) => (
+        <mesh key={x} position={[x, 1.1, 1.4]}>
+          <sphereGeometry args={[0.22, 12, 12]} />
+          <Neon color={color} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export default function ZoneBuilding({ id, color }: { id: ZoneId; color: string }) {
   switch (id) {
     case "about":
@@ -382,6 +467,10 @@ export default function ZoneBuilding({ id, color }: { id: ZoneId; color: string 
       return <PromoCinema color={color} />;
     case "oracle":
       return <OracleTerminal color={color} />;
+    case "resume":
+      return <ResumeHangar color={color} />;
+    case "hire":
+      return <HireHarbour color={color} />;
     case "comms":
       return <CommsTower color={color} />;
     default:

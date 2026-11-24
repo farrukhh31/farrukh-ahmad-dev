@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ModeLink from "@/components/PlayCTA/ModeLink";
 import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/useMounted";
 import { ArrowRight, Compass, Gamepad2, LayoutList, Moon, Music, Sun, VolumeX } from "lucide-react";
 
 import { useWebglSupport } from "@/hooks/useWebglSupport";
@@ -30,7 +31,8 @@ export default function TourRoot() {
   const [gone, setGone] = useState(false);
   const loaded = ready && minDone;
   const { resolvedTheme, setTheme } = useTheme();
-  const light = resolvedTheme === "light";
+  const mounted = useMounted();
+  const light = mounted && resolvedTheme === "light";
   const setActiveZone = useGame((s) => s.setActiveZone);
 
   useEffect(() => {

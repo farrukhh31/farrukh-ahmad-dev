@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { X } from "lucide-react";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useGame } from "@/lib/game/store";
 import { ZONES, ZONE_BY_ID, ZoneId } from "@/lib/game/zones";
 import { useDialogFocus } from "./useDialogFocus";
@@ -15,6 +15,8 @@ import TrophyPanel from "./panels/TrophyPanel";
 import CinemaPanel from "./panels/CinemaPanel";
 import OraclePanel from "./panels/OraclePanel";
 import CommsPanel from "./panels/CommsPanel";
+import ResumePanel from "./panels/ResumePanel";
+import HirePanel from "./panels/HirePanel";
 
 const BODY: Record<ZoneId, () => React.JSX.Element> = {
   plaza: PlazaPanel,
@@ -25,6 +27,8 @@ const BODY: Record<ZoneId, () => React.JSX.Element> = {
   trophy: TrophyPanel,
   cinema: CinemaPanel,
   oracle: OraclePanel,
+  resume: ResumePanel,
+  hire: HirePanel,
   comms: CommsPanel,
 };
 
@@ -38,8 +42,11 @@ export default function ZonePanel() {
   if (!openPanel) return null;
   const zone = ZONE_BY_ID[openPanel];
   const Body = BODY[openPanel];
-  const index = ZONES.findIndex((z) => z.id === openPanel) + 1;
+  const at = ZONES.findIndex((z) => z.id === openPanel);
+  const index = at + 1;
   const num = String(index).padStart(2, "0");
+  const prev = ZONES[(at - 1 + ZONES.length) % ZONES.length];
+  const next = ZONES[(at + 1) % ZONES.length];
 
   return (
     <div className="absolute inset-0 z-30 grid place-items-center bg-[radial-gradient(ellipse_at_center,rgba(3,7,18,0.55),rgba(3,7,18,0.88))] p-2.5 backdrop-blur-md sm:p-6" onClick={() => close(null)}>
@@ -59,13 +66,15 @@ export default function ZonePanel() {
         <button
           onClick={() => close(null)}
           aria-label="Close panel"
-          className="absolute right-3.5 top-3.5 z-20 grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/5 text-slate-300 backdrop-blur transition hover:rotate-90 hover:bg-white/15 hover:text-white focus-visible:outline-2 focus-visible:outline-cyan-300"
+          className="pm-btn !absolute right-4 top-4 z-20 !h-11 !rounded-full !bg-black/25 !text-white backdrop-blur hover:!bg-black/40"
         >
-          <X size={16} />
+          <X size={18} />
+          <span className="hidden sm:inline">Close</span>
+          <kbd className="pm-key !hidden !h-6 !text-white sm:!inline-grid">Esc</kbd>
         </button>
 
         {/* Identity rail */}
-        <aside className="relative shrink-0 overflow-hidden border-b border-white/10 p-5 pr-14 md:flex md:w-[300px] md:flex-col md:border-b-0 md:border-r md:p-8">
+        <aside className="relative shrink-0 overflow-hidden border-b border-white/10 p-5 pr-28 md:pr-8 md:flex md:w-[300px] md:flex-col md:border-b-0 md:border-r md:p-8">
           <span
             aria-hidden
             className="pointer-events-none absolute -bottom-6 -left-3 hidden select-none font-mono text-[10rem] font-black leading-none tracking-tighter md:block"
@@ -85,7 +94,7 @@ export default function ZonePanel() {
           <p className="relative mt-4 hidden text-[13px] leading-relaxed text-slate-400 md:block">{zone.description}</p>
 
           <div className="relative mt-auto hidden pt-8 md:block">
-            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">Island progress</p>
+            <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-slate-500">Islands discovered</p>
             <div className="flex gap-1.5" aria-label="Zones visited">
               {ZONES.map((z) => (
                 <span
@@ -96,9 +105,26 @@ export default function ZonePanel() {
                 />
               ))}
             </div>
-            <p className="mt-4 text-[11px] text-slate-500">
-              <kbd className="rounded border border-white/15 bg-white/10 px-1.5 py-0.5 font-mono text-[10px] text-slate-300">Esc</kbd> to close
-            </p>
+            <div className="mt-5 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => close(prev.id)}
+                aria-label={`Previous zone: ${prev.name}`}
+                className="pm-tile !min-h-[56px] !flex-col !items-start !gap-0.5 !rounded-2xl !bg-white/[0.06] !p-3 !text-white"
+                style={{ ["--pm-accent" as string]: prev.color }}
+              >
+                <ArrowLeft size={14} className="text-slate-400" />
+                <span className="w-full truncate text-xs font-semibold">{prev.name}</span>
+              </button>
+              <button
+                onClick={() => close(next.id)}
+                aria-label={`Next zone: ${next.name}`}
+                className="pm-tile !min-h-[56px] !flex-col !items-end !gap-0.5 !rounded-2xl !bg-white/[0.06] !p-3 !text-white"
+                style={{ ["--pm-accent" as string]: next.color }}
+              >
+                <ArrowRight size={14} className="text-slate-400" />
+                <span className="w-full truncate text-right text-xs font-semibold">{next.name}</span>
+              </button>
+            </div>
           </div>
         </aside>
 

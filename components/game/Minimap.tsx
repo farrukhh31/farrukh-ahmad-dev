@@ -6,9 +6,8 @@ import { useGame } from "@/lib/game/store";
 import { BRIDGES, PLATFORMS } from "@/lib/game/layout";
 import { ISLAND_RADIUS, ZONES } from "@/lib/game/zones";
 
-const SIZE = 132;
-
-export default function Minimap() {
+export default function Minimap({ size = 156 }: { size?: number }) {
+  const SIZE = size;
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -23,13 +22,14 @@ export default function Minimap() {
 
     const draw = () => {
       const { visited, activeZone } = useGame.getState();
+      const light = document.documentElement.classList.contains("light");
       ctx.clearRect(0, 0, SIZE, SIZE);
       ctx.save();
       ctx.translate(SIZE / 2, SIZE / 2);
 
       // bridges first, then the platforms on top of them
       ctx.lineCap = "round";
-      ctx.strokeStyle = "rgba(148,163,184,0.45)";
+      ctx.strokeStyle = light ? "rgba(51,65,85,0.4)" : "rgba(148,163,184,0.45)";
       ctx.lineWidth = 3;
       for (const b of BRIDGES) {
         ctx.beginPath();
@@ -40,7 +40,7 @@ export default function Minimap() {
       for (const p of PLATFORMS) {
         ctx.beginPath();
         ctx.arc(p.x * scale, p.z * scale, p.r * scale, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(5,11,24,0.8)";
+        ctx.fillStyle = light ? "rgba(255,255,255,0.85)" : "rgba(5,11,24,0.8)";
         ctx.fill();
         ctx.strokeStyle = p.color;
         ctx.globalAlpha = 0.7;
@@ -54,7 +54,7 @@ export default function Minimap() {
         const y = z.position[2] * scale;
         ctx.beginPath();
         ctx.arc(x, y, activeZone === z.id ? 5 : 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = visited[z.id] ? z.color : "rgba(148,163,184,0.35)";
+        ctx.fillStyle = visited[z.id] ? z.color : light ? "rgba(100,116,139,0.35)" : "rgba(148,163,184,0.35)";
         ctx.fill();
         ctx.strokeStyle = z.color;
         ctx.lineWidth = 1;
@@ -68,7 +68,7 @@ export default function Minimap() {
       ctx.lineTo(4.5, -4);
       ctx.lineTo(-4.5, -4);
       ctx.closePath();
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = light ? "#0f172a" : "#fff";
       ctx.fill();
 
       ctx.restore();
@@ -76,13 +76,13 @@ export default function Minimap() {
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [SIZE]);
 
   return (
     <canvas
       ref={ref}
       aria-hidden
-      className="rounded-full border border-white/15 bg-slate-950/60 backdrop-blur-md"
+      className="block rounded-[18px]"
       style={{ width: SIZE, height: SIZE }}
     />
   );

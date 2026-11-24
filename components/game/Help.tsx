@@ -1,22 +1,24 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
-import { X } from "lucide-react";
+import { Gamepad2, Hand, Target, X } from "lucide-react";
+import ModeLink from "@/components/PlayCTA/ModeLink";
 import { useGame } from "@/lib/game/store";
+import { TOTAL_SKILLS } from "@/lib/game/achievements";
+import { ZONES } from "@/lib/game/zones";
 import { useDialogFocus } from "./useDialogFocus";
 
-const KEYS: [string, string][] = [
-  ["W A S D  /  Arrow keys", "Move"],
-  ["Shift", "Run"],
-  ["E  /  Enter", "Open the zone you are standing in"],
-  ["1  2  3  4", "Gestures: wave, cheer, bow, think"],
-  ["H  or  ?", "Show / hide this help"],
-  ["Esc", "Close a panel or this help"],
-  ["Camera", "Swings around automatically so you face each zone"],
+const KEYS: [string[], string][] = [
+  [["W", "A", "S", "D"], "Move"],
+  [["←", "→"], "Orbit the camera"],
+  [["↑", "↓"], "Zoom the camera"],
+  [["Shift"], "Run"],
+  [["E"], "Open the zone you are standing in"],
+  [["1", "2", "3", "4"], "Wave, cheer, bow, think"],
+  [["C"], "Reset the camera"],
+  [["H"], "Show or hide this help"],
+  [["Esc"], "Close a panel"],
 ];
-
-const kbd = "rounded-md border border-white/20 bg-white/10 px-2 py-0.5 font-mono text-xs text-slate-100";
 
 export function HelpDialog() {
   const open = useGame((s) => s.helpOpen);
@@ -26,7 +28,7 @@ export function HelpDialog() {
   if (!open) return null;
 
   return (
-    <div className="absolute inset-0 z-40 grid place-items-center bg-black/60 p-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
+    <div className="absolute inset-0 z-40 grid place-items-center bg-[radial-gradient(ellipse_at_center,rgba(3,7,18,0.45),rgba(3,7,18,0.78))] p-3 backdrop-blur-sm" onClick={() => setOpen(false)}>
       <div
         ref={ref}
         role="dialog"
@@ -34,39 +36,51 @@ export function HelpDialog() {
         aria-labelledby="help-title"
         onKeyDown={onKeyDown}
         onClick={(e) => e.stopPropagation()}
-        className="relative max-h-[88vh] w-full max-w-md overflow-y-auto rounded-3xl border border-cyan-400/30 bg-slate-950/95 p-6 shadow-2xl"
+        className="pm-panel pm-rise max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-[30px] p-6 sm:p-8"
       >
-        <button onClick={() => setOpen(false)} aria-label="Close help" className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white/5 text-slate-300 hover:bg-white/10">
-          <X size={16} />
-        </button>
-        <h2 id="help-title" className="text-xl font-bold text-white">How to play</h2>
-        <p className="mt-1 text-sm text-slate-400">Walk around the island and step into each zone to discover my portfolio.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 id="help-title" className="pm-ink text-2xl font-semibold tracking-tight">How to play</h2>
+            <p className="pm-muted mt-1 max-w-sm text-sm leading-relaxed">Walk between the islands and step into each zone to see a different part of my portfolio.</p>
+          </div>
+          <button onClick={() => setOpen(false)} aria-label="Close help" className="pm-btn is-icon -mr-2 -mt-2 shrink-0">
+            <X size={18} />
+          </button>
+        </div>
 
-        <h3 className="mb-2 mt-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-500">Keyboard</h3>
-        <ul className="space-y-2">
-          {KEYS.map(([k, d]) => (
-            <li key={k} className="flex items-center justify-between gap-3 text-sm text-slate-300">
-              <span className={kbd}>{k}</span>
-              <span className="text-right">{d}</span>
-            </li>
-          ))}
-        </ul>
+        <section className="mt-6">
+          <h3 className="pm-ink flex items-center gap-2 text-sm font-semibold"><Gamepad2 size={16} /> Keyboard</h3>
+          <ul className="mt-3 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+            {KEYS.map(([keys, label]) => (
+              <li key={label} className="flex items-center gap-3">
+                <span className="flex min-w-[5.5rem] shrink-0 gap-1">
+                  {keys.map((k) => (
+                    <kbd key={k} className="pm-key">{k}</kbd>
+                  ))}
+                </span>
+                <span className="pm-muted text-[13px] leading-snug">{label}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        <h3 className="mb-2 mt-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-500">Touch</h3>
-        <p className="text-sm leading-relaxed text-slate-300">
-          Drag the left stick to move and push it all the way out to run. Tap the <b>Open</b> button
-          that appears when you reach a zone.
-        </p>
+        <section className="mt-6 rounded-2xl p-4" style={{ background: "var(--pm-raise)" }}>
+          <h3 className="pm-ink flex items-center gap-2 text-sm font-semibold"><Hand size={16} /> Touch</h3>
+          <p className="pm-muted mt-1.5 text-[13px] leading-relaxed">
+            Drag the left stick to move, and push it all the way out to run. Tap <b className="pm-ink">Enter</b> when it appears at a zone.
+          </p>
+        </section>
 
-        <h3 className="mb-2 mt-5 text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-500">Goals</h3>
-        <p className="text-sm leading-relaxed text-slate-300">
-          Discover all 9 zones, collect the 37 glowing skill orbs in the Skill Grove, and unlock
-          achievements to level up.
-        </p>
+        <section className="mt-3 rounded-2xl p-4" style={{ background: "var(--pm-raise)" }}>
+          <h3 className="pm-ink flex items-center gap-2 text-sm font-semibold"><Target size={16} /> Goals</h3>
+          <p className="pm-muted mt-1.5 text-[13px] leading-relaxed">
+            Find all {ZONES.length} zones, collect the {TOTAL_SKILLS} glowing skill orbs in the Skill Grove, and unlock achievements to level up. Unfound zones send up a light beam so you can spot them from across the water.
+          </p>
+        </section>
 
-        <Link href="/" className="mt-6 block rounded-xl bg-white/5 px-4 py-3 text-center text-sm text-slate-200 hover:bg-white/10">
-          Prefer a regular page? Open Recruiter Mode
-        </Link>
+        <ModeLink href="/" className="pm-btn mt-6 w-full justify-center">
+          Prefer a regular page? Open Recruiter mode
+        </ModeLink>
       </div>
     </div>
   );
@@ -81,16 +95,18 @@ export function IntroTip() {
   if (seen || panel || help) return null;
 
   return (
-    <div role="note" className="pointer-events-auto absolute bottom-[11.5rem] left-1/2 w-[min(92vw,22rem)] -translate-x-1/2 rounded-2xl border border-cyan-400/30 bg-slate-950/90 p-4 text-sm text-slate-300 shadow-xl backdrop-blur-xl sm:bottom-24">
-      <p className="font-semibold text-white">Welcome to my Dev Hub 👋</p>
-      <p className="mt-1 leading-relaxed">
-        <span className="hidden sm:inline">Move with <b>WASD</b>.</span>
-        <span className="sm:hidden">Drag the stick to move.</span> Walk into glowing zones to explore, and
-        collect the colourful orbs for XP.
+    <div
+      role="note"
+      className="pm-panel pm-rise pointer-events-auto absolute left-1/2 top-[8.75rem] w-[min(92vw,23rem)] -translate-x-1/2 rounded-[26px] p-5 lg:bottom-44 lg:left-6 lg:top-auto lg:translate-x-0"
+    >
+      <p className="pm-ink text-base font-semibold">Welcome to my Dev Hub</p>
+      <p className="pm-muted mt-1.5 text-[13px] leading-relaxed">
+        <span className="hidden sm:inline">Move with <b className="pm-ink">WASD</b> and look around with the <b className="pm-ink">arrow keys</b>.</span>
+        <span className="sm:hidden">Drag the stick to move.</span> Walk into a glowing zone to open it, and collect the colourful orbs for XP.
       </p>
-      <div className="mt-3 flex gap-2 text-xs">
-        <button onClick={dismiss} className="rounded-lg bg-cyan-400/20 px-3 py-1.5 font-medium text-cyan-100 hover:bg-cyan-400/30">Got it</button>
-        <button onClick={() => useGame.getState().setHelpOpen(true)} className="rounded-lg bg-white/5 px-3 py-1.5 text-slate-200 hover:bg-white/10">All controls</button>
+      <div className="mt-4 flex gap-2">
+        <button onClick={dismiss} className="pm-cta flex-1">Got it</button>
+        <button onClick={() => useGame.getState().setHelpOpen(true)} className="pm-btn">All controls</button>
       </div>
     </div>
   );

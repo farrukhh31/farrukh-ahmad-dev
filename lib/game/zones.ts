@@ -15,6 +15,8 @@ export type ZoneId =
   | "trophy"
   | "cinema"
   | "oracle"
+  | "resume"
+  | "hire"
   | "comms";
 
 export interface Zone {
@@ -33,12 +35,13 @@ export interface Zone {
   blockRadius: number;
 }
 
-export const ISLAND_RADIUS = 38;
-export const RING_RADIUS = 29;
+export const ISLAND_RADIUS = 45;
+export const RING_RADIUS = 36;
+const RING_SLOTS = 10;
 export const SPAWN: [number, number] = [0, 9];
 
 const ring = (index: number): [number, number, number] => {
-  const a = (index * Math.PI * 2) / 8;
+  const a = (index * Math.PI * 2) / RING_SLOTS;
   return [Math.sin(a) * RING_RADIUS, 0, -Math.cos(a) * RING_RADIUS];
 };
 
@@ -116,6 +119,18 @@ export const ZONES: Zone[] = [
     blockRadius: 3.2,
   },
   {
+    id: "resume",
+    name: "Resume Hangar",
+    tagline: "Ready for takeoff",
+    section: "Resume",
+    description:
+      "My resume as a PDF: download it, open it in a new tab, and see where I am working right now.",
+    color: "#fb7185",
+    position: ring(5),
+    triggerRadius: 7,
+    blockRadius: 3.0,
+  },
+  {
     id: "cinema",
     name: "Promo Cinema",
     tagline: "Now showing",
@@ -123,7 +138,7 @@ export const ZONES: Zone[] = [
     description:
       "The short animated introduction made in After Effects, on the big screen.",
     color: "#60a5fa",
-    position: ring(5),
+    position: ring(6),
     triggerRadius: 8,
     blockRadius: 3.8,
   },
@@ -135,9 +150,21 @@ export const ZONES: Zone[] = [
     description:
       "A RAG-powered assistant that answers questions about Farrukh using only the portfolio's own documents.",
     color: "#a78bfa",
-    position: ring(6),
+    position: ring(7),
     triggerRadius: 7,
     blockRadius: 2.6,
+  },
+  {
+    id: "hire",
+    name: "Hire Harbour",
+    tagline: "Let's build something",
+    section: "Work with me",
+    description:
+      "What I can help with, what I work with most, and the quickest ways to get in touch.",
+    color: "#f97316",
+    position: ring(8),
+    triggerRadius: 7,
+    blockRadius: 3.0,
   },
   {
     id: "comms",
@@ -147,7 +174,7 @@ export const ZONES: Zone[] = [
     description:
       "Send a message straight to Farrukh's inbox from an in-world terminal.",
     color: "#2dd4bf",
-    position: ring(7),
+    position: ring(9),
     triggerRadius: 7,
     blockRadius: 2.8,
   },

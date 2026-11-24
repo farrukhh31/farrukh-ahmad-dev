@@ -64,6 +64,27 @@ def test_urdu_question_is_translated_then_answered_in_urdu(make_llm_engine):
     assert out["sources"][0]["zone"] == "skills"
 
 
+def test_roman_urdu_translated_and_answered_in_urdu(make_llm_engine):
+    fake = FakeAnthropic(reply="فرخ نے کئی پروجیکٹس بنائے ہیں۔", translation="What are Farrukh's projects?")
+    out = make_llm_engine(fake).chat("Farrukh ke projects kya hain?")
+    assert out["language"] == "ur"
+    assert out["answer"] == "فرخ نے کئی پروجیکٹس بنائے ہیں۔"
+    assert "Translate the user's message" in fake.requests[0]["body"]["system"]
+    assert "Reply in Urdu" in fake.requests[-1]["body"]["system"]
+
+
+def test_switching_language_back_to_english_with_prior_urdu_history(make_llm_engine):
+    fake = FakeAnthropic(reply="Farrukh has built several projects including Mask Jam.")
+    history = [
+        {"role": "user", "content": "Farrukh ke projects kya hain?"},
+        {"role": "assistant", "content": "فرخ نے کئی پروجیکٹس بنائے ہیں۔"}
+    ]
+    out = make_llm_engine(fake).chat("Tell me about his game dev work", history=history, lang="en")
+    assert out["language"] == "en"
+    assert "Reply in English" in fake.requests[-1]["body"]["system"]
+    assert "[Instruction: Reply in EN]" in fake.requests[-1]["body"]["messages"][-1]["content"]
+
+
 def test_urdu_without_llm_explains_politely(engine):
     out = engine.chat("فرخ کے پروجیکٹس کیا ہیں؟")
     assert out["language"] == "ur" and out["grounded"] is False

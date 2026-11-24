@@ -521,8 +521,8 @@ function applyPref() {
 }
 
 /** Lower the music while a panel or dialog is open so it never competes with reading. */
-export function duckMusic(on: boolean) {
-  duck = on ? 0.35 : 1;
+export function duckMusic(on: boolean, amount = 0.35) {
+  duck = on ? amount : 1;
   if (ctx && bus && pref.on) bus.gain.setTargetAtTime(level(), ctx.currentTime, 0.35);
 }
 

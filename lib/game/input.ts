@@ -26,10 +26,11 @@ export function readMoveVector(): { x: number; z: number } {
   const k = input.keys;
   let x = 0;
   let z = 0;
-  if (k.has("KeyW") || k.has("ArrowUp")) z -= 1;
-  if (k.has("KeyS") || k.has("ArrowDown")) z += 1;
-  if (k.has("KeyA") || k.has("ArrowLeft")) x -= 1;
-  if (k.has("KeyD") || k.has("ArrowRight")) x += 1;
+  // W A S D walk; the arrow keys belong to the camera (orbit + zoom, see CameraRig)
+  if (k.has("KeyW")) z -= 1;
+  if (k.has("KeyS")) z += 1;
+  if (k.has("KeyA")) x -= 1;
+  if (k.has("KeyD")) x += 1;
 
   x += input.joy.x;
   z -= input.joy.y;

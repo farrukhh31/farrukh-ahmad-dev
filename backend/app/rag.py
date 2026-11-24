@@ -46,9 +46,18 @@ TEXT = {
     },
 }
 
-GREETING_RE = re.compile(r"^\s*(hi|hello|hey|hiya|good (morning|afternoon|evening)|salam|assalam[\w\s-]*|السلام علیکم|سلام|ہیلو)\W*\s*$", re.I)
-THANKS_RE = re.compile(r"^\s*(thanks|thank you|thx|ty|شکریہ)\W*\s*$", re.I)
-ABOUT_RE = re.compile(r"^\s*(who are you|what are you|what can you do|help|what can i ask)\W*\s*$", re.I)
+GREETING_RE = re.compile(
+    r"^\s*(hi|hello|hey|hiya|good\s+(morning|afternoon|evening)|salam|assalam[\w\s-]*|adaab|السلام\s+علیکم|سلام|ہیلو|کیسے\s+ہو|کیا\s+حال\s+ہے)\W*\s*$",
+    re.I,
+)
+THANKS_RE = re.compile(
+    r"^\s*(thanks|thank\s+you|thx|ty|shukriya|meherbani|bohot\s+shukriya|bahut\s+shukriya|شکریہ|بہت\s+شکریہ|مہربانی)\W*\s*$",
+    re.I,
+)
+ABOUT_RE = re.compile(
+    r"^\s*(who\s+are\s+you|what\s+are\s+you|what\s+can\s+you\s+do|help|what\s+can\s+i\s+ask|aap\s+kaun\s+hain|aap\s+kon\s+hain|tum\s+kon\s+ho|tum\s+kaun\s+ho|aap\s+kya\s+kar\s+sakte\s+hain|kya\s+madad\s+kar\s+sakte\s+ho|آپ\s+کون\s+ہیں|کیا\s+کر\s+سکتے\s+ہیں|مدد)\W*\s*$",
+    re.I,
+)
 
 
 # Obvious prompt-injection / prompt-extraction phrasing. This is a cheap first filter
@@ -69,12 +78,52 @@ def sanitize(text: str, max_chars: int) -> str:
     return re.sub(r"\s+", " ", text).strip()[:max_chars]
 
 
+# Words that unmistakably indicate Roman Urdu (low-to-zero false positive on English text)
+DISTINCTIVE_ROMAN_URDU = {
+    "kya", "kaise", "kaisay", "kidhar", "kahan", "batao", "bataiye", "bataen",
+    "dikhao", "dikhayein", "unka", "unki", "unke", "aapka", "aapki", "aapke",
+    "mujhe", "shukriya", "meherbani", "tajurba", "taleem", "parhai", "kaam",
+    "humein", "humara", "humari", "humare", "tumhara", "tumhari", "tumhare",
+    "karta", "karti", "karte", "honge", "nahin", "bohot", "bahut", "zyada"
+}
+
+ROMAN_URDU_MARKERS = {
+    "kya", "kyun", "kyon", "kaise", "kaisay", "kab", "kahan", "kidhar", "kon", "kaun",
+    "kis", "kisi", "kisne", "kisko", "kiska", "kiski", "kiske",
+    "mujhe", "mera", "meri", "mere", "humein", "humara", "humari", "humare",
+    "aap", "aapka", "aapki", "aapke", "tum", "tumhara", "tumhari", "tumhare",
+    "uska", "uski", "uske", "unka", "unki", "unke", "inhe", "inka", "inki", "inke",
+    "kuch", "koi", "sab", "yeh", "woh",
+    "hai", "hain", "ho", "hoon", "tha", "thi", "the", "hoga", "hogi", "honge",
+    "karta", "karti", "karte", "karna", "karein", "karo", "kiya", "kiye", "gaya",
+    "batao", "bataiye", "bataen", "dikhao", "dikhayein",
+    "aur", "ya", "lekin", "magar", "bhi", "nahi", "nahin", "bohot", "bahut", "zyada",
+    "shukriya", "meherbani", "bare", "mein", "wali", "wala", "wale",
+    "parhai", "taleem", "tajurba", "kaam", "maloomat"
+}
+
+
 def detect_language(text: str) -> str:
     letters = [c for c in text if c.isalpha()]
     if not letters:
         return "en"
-    arabic = sum(1 for c in letters if "\u0600" <= c <= "\u06ff")
-    return "ur" if arabic / len(letters) > 0.3 else "en"
+    # Arabic / Urdu script characters
+    arabic = sum(1 for c in letters if ("\u0600" <= c <= "\u06ff") or ("\u0750" <= c <= "\u077f") or ("\ufb50" <= c <= "\ufdff") or ("\ufe70" <= c <= "\ufeff"))
+    if arabic > 0 and (arabic / len(letters) > 0.15 or arabic >= 2):
+        return "ur"
+
+    tokens = [w.lower().strip("?,.!:;\"'()[]{}~`-_") for w in text.split()]
+    tokens = [t for t in tokens if t]
+    if not tokens:
+        return "en"
+
+    distinctive_hits = sum(1 for t in tokens if t in DISTINCTIVE_ROMAN_URDU)
+    general_hits = sum(1 for t in tokens if t in ROMAN_URDU_MARKERS)
+
+    if distinctive_hits >= 1 or general_hits >= 2:
+        return "ur"
+
+    return "en"
 
 
 class RagEngine:
@@ -163,7 +212,7 @@ class RagEngine:
     def chat(self, message: str, history: list[dict] | None = None, lang: str | None = None) -> dict:
         s = self.settings
         message = sanitize(message, s.max_message_chars)
-        language = lang or detect_language(message)
+        language = lang if lang in ("en", "ur") else detect_language(message)
         t = TEXT[language]
         base = {"language": language, "mode": self.llm.name}
 
@@ -213,7 +262,7 @@ class RagEngine:
         convo = [{"role": h["role"], "content": sanitize(h["content"], 600)} for h in history]
         while convo and convo[0]["role"] != "user":
             convo.pop(0)
-        convo.append({"role": "user", "content": f"<context>\n{context}\n</context>\n\nVisitor question: {message}"})
+        convo.append({"role": "user", "content": f"<context>\n{context}\n</context>\n\n[Instruction: Reply in {language.upper()}]\nVisitor question: {message}"})
 
         try:
             answer = self.llm.generate(query, convo, language, hits, s.max_output_tokens)
@@ -221,7 +270,8 @@ class RagEngine:
             log.warning("LLM failed, falling back to extractive answer: %s", e)
             from .llm import ExtractiveLLM
 
-            answer = ExtractiveLLM().generate(query, convo, language, hits, s.max_output_tokens)
+            # The extractive fallback cannot translate. Never return English snippets for an Urdu request.
+            answer = t["no_urdu"] if language == "ur" else ExtractiveLLM().generate(query, convo, language, hits, s.max_output_tokens)
         if not answer:
             return reply(t["error"], False)
 

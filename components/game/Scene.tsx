@@ -14,6 +14,10 @@ import Sky from "./Sky";
 import Props from "./Props";
 import NightStars from "./NightStars";
 import SkillOrbs from "./SkillOrbs";
+import CloudSea from "./CloudSea";
+import Islets from "./Islets";
+import Waterfalls from "./Waterfalls";
+import Beacons from "./Beacons";
 import Player from "./Player";
 import CameraRig from "./CameraRig";
 
@@ -54,14 +58,21 @@ export default function Scene() {
 
       <Suspense fallback={null}>
         <Sky />
+        <CloudSea high={high && !reduced} />
+        <Islets high={high} />
+        <Waterfalls />
         <World />
+        <Beacons />
         <Props high={high && !reduced} />
         <SkillOrbs />
         <Player />
         <CameraRig />
         <NightStars high={high} still={reduced} />
         {high && !reduced && (
-          <Sparkles count={120} scale={[70, 14, 70]} size={3} speed={0.3} color="#67e8f9" position={[0, 6, 0]} />
+          <>
+            <Sparkles count={120} scale={[70, 14, 70]} size={3} speed={0.3} color="#67e8f9" position={[0, 6, 0]} />
+            <Sparkles count={70} scale={[90, 20, 90]} size={5} speed={0.18} color="#fde68a" position={[0, 8, 0]} />
+          </>
         )}
       </Suspense>
 

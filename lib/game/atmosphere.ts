@@ -20,7 +20,10 @@ export const PAL = {
   dirLight: [c("#a5b4fc"), c("#fff1d9")],
   groundBase: [c("#050b18"), c("#7ea6b0")],
   groundLine: [c("#22d3ee"), c("#eaf8fb")],
-  rock: [c("#0e1630"), c("#8aa5b0")],
+  rock: [c("#0e1630"), c("#9db4c4")],
+  cloudTop: [c("#4b5d96"), c("#ffffff")],
+  cloudShade: [c("#0f1633"), c("#b7d0e4")],
+  lip: [c("#1d2c58"), c("#f1ecf7")],
 } as const;
 
 export const NUM = {

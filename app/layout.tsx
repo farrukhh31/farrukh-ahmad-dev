@@ -7,6 +7,7 @@ import ThemeProvider from "@/components/Providers/themeProvider";
 import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 import VercelInsights from "@/components/analytics/VercelInsights";
 import ModeTransition from "@/components/PlayCTA/ModeTransition";
+import FloatingChat from "@/components/chat/FloatingChat";
 
 export const metadata: Metadata = {
   title: "Farrukh.dev",
@@ -30,6 +31,7 @@ export default function RootLayout({
     >
       <body className="relative min-h-screen overflow-x-hidden bg-(--background) text-(--foreground) antialiased">
         <ThemeProvider>{children}</ThemeProvider>
+        <FloatingChat />
         <ModeTransition />
         <AnalyticsTracker />
         {/* durable page-view counts on Vercel (cookieless); does nothing elsewhere */}

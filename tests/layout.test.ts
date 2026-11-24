@@ -21,7 +21,7 @@ describe("archipelago layout", () => {
   });
 
   it("connects every platform to the plaza and to its neighbours", () => {
-    expect(BRIDGES).toHaveLength(16);
+    expect(BRIDGES).toHaveLength(20);
     for (const b of BRIDGES) expect(isWalkable((b.sx + b.ex) / 2, (b.sz + b.ez) / 2)).toBe(true);
   });
 

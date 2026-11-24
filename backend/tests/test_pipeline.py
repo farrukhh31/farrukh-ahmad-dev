@@ -92,9 +92,35 @@ def test_follow_up_keeps_topic(engine):
 
 def test_input_helpers():
     assert detect_language("Tell me about projects") == "en"
+    assert detect_language("What are his skills and certifications?") == "en"
     assert detect_language("فرخ کے پروجیکٹس کیا ہیں؟") == "ur"
+    assert detect_language("Farrukh ke projects kya hain?") == "ur"
+    assert detect_language("Unka tajurba aur taleem batao") == "ur"
+    assert detect_language("Farrukh kya karta hai?") == "ur"
+    assert detect_language("Mujhe skills dikhao") == "ur"
     assert sanitize("  hello \u0000 \n\n world  ", 50) == "hello world"
     assert len(sanitize("x" * 1000, 500)) == 500
+
+
+def test_roman_urdu_small_talk_and_explicit_lang(engine):
+    # Roman Urdu greetings and thanks
+    g1 = engine.chat("salam", lang="ur")
+    assert g1["grounded"] and g1["language"] == "ur"
+    assert "السلام علیکم" in g1["answer"]
+
+    t1 = engine.chat("shukriya", lang="ur")
+    assert t1["grounded"] and t1["language"] == "ur"
+    assert "خوش آمدید" in t1["answer"]
+
+    # Explicit override: message in English but lang="ur" -> language is "ur"
+    e1 = engine.chat("hi", lang="ur")
+    assert e1["language"] == "ur"
+    assert "السلام علیکم" in e1["answer"]
+
+    # Explicit override: message in Urdu or Roman Urdu but lang="en" -> language is "en"
+    e2 = engine.chat("salam", lang="en")
+    assert e2["language"] == "en"
+    assert "Hi!" in e2["answer"]
 
 
 def test_wordy_questions_still_find_the_right_chunk(engine):

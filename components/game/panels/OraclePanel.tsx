@@ -109,7 +109,8 @@ export default function OraclePanel() {
       setMsgs((m) => [...m, { role: "assistant", content: data.answer, sources: data.sources, grounded: data.grounded, mode: data.mode }]);
       if (speakOn) speak(data.answer, lang);
     } catch (e) {
-      setMsgs((m) => [...m, { role: "assistant", content: e instanceof Error ? e.message : "Something went wrong.", error: true }]);
+      const fallback = lang === "ur" ? "معذرت، رابطے میں مسئلہ پیش آیا۔ براہِ کرم دوبارہ کوشش کریں۔" : "Sorry, I couldn't connect. Please try again.";
+      setMsgs((m) => [...m, { role: "assistant", content: fallback, error: true }]);
     } finally {
       setBusy(false);
     }

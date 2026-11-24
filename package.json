@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "mail:capture": "node scripts/smtp-capture.mjs"
+    "mail:capture": "node scripts/smtp-capture.mjs",
+    "avatar:fbx": "blender --background --python scripts/glb_to_fbx.py -- public/models/avatar.glb public/models/avatar.fbx"
   },
   "dependencies": {
     "@fontsource/orbitron": "^5.3.0",

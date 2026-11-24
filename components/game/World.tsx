@@ -10,6 +10,7 @@ import { useGame } from "@/lib/game/store";
 import { BRIDGES, BRIDGE_HALF_WIDTH, PLATFORMS, type Platform as PlatformData } from "@/lib/game/layout";
 import { ZONES, Zone } from "@/lib/game/zones";
 import ZoneBuilding from "./ZoneBuildings";
+import PlazaCard from "./PlazaCard";
 import { FONT_BOLD, FONT_MED, glowColor } from "./Glow";
 
 /* ------------------------------- ground ------------------------------- */
@@ -29,6 +30,7 @@ const groundFragment = /* glsl */ `
   uniform float uRadius;
   uniform float uTime;
   uniform float uRipple;
+  uniform float uInlay;
   varying vec3 vWorld;
 
   // Anti-aliased grid: lines fade out once they get thinner than a pixel,
@@ -52,6 +54,12 @@ const groundFragment = /* glsl */ `
     col += uLine * (fine * 0.14 + bold * 0.45) * fade;
     col += uLine * rim * 0.5;
 
+    // inlaid ring and a ring of studs, so the platform reads as built rather than flat
+    float inlayLine = 1.0 - smoothstep(0.0, 0.07, abs(r - uRadius * 0.64));
+    float ang = atan(vWorld.z - uCenter.y, vWorld.x - uCenter.x);
+    float studs = (1.0 - smoothstep(0.0, 0.1, abs(r - uRadius * 0.8))) * smoothstep(0.55, 0.9, sin(ang * 24.0));
+    col += uLine * (inlayLine * 0.42 + studs * 0.55) * uInlay;
+
     // energy ripple radiating out from the plaza
     float d = mod(r - uTime * 7.0, 30.0);
     float ripple = exp(-d * 1.1) * (1.0 - smoothstep(4.0, uRadius, r)) * smoothstep(3.0, 6.0, r);
@@ -71,6 +79,7 @@ function Platform({ p }: { p: PlatformData }) {
       uRadius: { value: p.r },
       uTime: { value: 0 },
       uRipple: { value: 1 },
+      uInlay: { value: p.id === "plaza" ? 0 : 1 },
     }),
     [p],
   );
@@ -78,7 +87,14 @@ function Platform({ p }: { p: PlatformData }) {
   const rim = useMemo(() => glowColor(p.color, 2.2), [p.color]);
 
   const mat = useRef<THREE.ShaderMaterial>(null);
+  const bodyMat = useRef<THREE.MeshStandardMaterial>(null);
+  const rockMat = useRef<THREE.MeshStandardMaterial>(null);
+  const lipMat = useRef<THREE.MeshStandardMaterial>(null);
   useFrame((state) => {
+    // stone follows the day / night palette instead of staying navy in daylight
+    if (bodyMat.current) blend(bodyMat.current.color, PAL.rock, atmosphere.day);
+    if (rockMat.current) blend(rockMat.current.color, PAL.rock, atmosphere.day).multiplyScalar(0.86);
+    if (lipMat.current) blend(lipMat.current.color, PAL.lip, atmosphere.day);
     const u = mat.current?.uniforms;
     if (!u) return;
     blend(u.uBase.value, PAL.groundBase, atmosphere.day);
@@ -98,11 +114,16 @@ function Platform({ p }: { p: PlatformData }) {
       {/* platform body + the rock it floats on */}
       <mesh position={[0, -1.2, 0]}>
         <cylinderGeometry args={[p.r, p.r - 1, 2.2, 48]} />
-        <meshStandardMaterial color="#101a33" metalness={0.2} roughness={0.7} />
+        <meshStandardMaterial ref={bodyMat} color="#101a33" metalness={0.1} roughness={0.8} />
+      </mesh>
+      {/* stone lip around the edge */}
+      <mesh position={[0, -0.19, 0]}>
+        <cylinderGeometry args={[p.r + 0.24, p.r + 0.24, 0.4, 72, 1, true]} />
+        <meshStandardMaterial ref={lipMat} color="#1d2c58" metalness={0.05} roughness={0.7} />
       </mesh>
       <mesh position={[0, -2.3 - rockH / 2, 0]} rotation={[Math.PI, 0, 0]}>
         <coneGeometry args={[p.r - 1, rockH, 8]} />
-        <meshStandardMaterial color="#131d3a" flatShading roughness={0.9} />
+        <meshStandardMaterial ref={rockMat} color="#131d3a" flatShading roughness={0.95} />
       </mesh>
       {/* glowing rim */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
@@ -176,41 +197,19 @@ function Plaza() {
         <cylinderGeometry args={[1.8, 2.1, 0.6, 32]} />
         <meshStandardMaterial color="#16223d" metalness={0.25} roughness={0.45} />
       </mesh>
-      <group ref={holo} position={[0, 2.6, 0]}>
+      {/* small beacon under the card */}
+      <group ref={holo} position={[0, 1.5, 0]}>
         <mesh>
-          <icosahedronGeometry args={[1.1, 1]} />
+          <icosahedronGeometry args={[0.55, 1]} />
           <meshBasicMaterial color={cyan} wireframe toneMapped={false} />
         </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.7, 0.04, 8, 64]} />
+          <torusGeometry args={[1.0, 0.035, 8, 64]} />
           <meshBasicMaterial color={violet} toneMapped={false} />
         </mesh>
       </group>
 
-      <Billboard position={[0, 5.6, 0]}>
-        <Text
-          font={FONT_BOLD}
-          fontSize={1.1}
-          letterSpacing={0.08}
-          color={cyan}
-          anchorX="center"
-          anchorY="middle"
-          material-toneMapped={false}
-        >
-          FARRUKH
-        </Text>
-        <Text
-          font={FONT_MED}
-          fontSize={0.36}
-          letterSpacing={0.14}
-          position={[0, -0.85, 0]}
-          color="#cbd5e1"
-          anchorX="center"
-          anchorY="middle"
-        >
-          GAME DEVELOPER  •  FULL STACK  •  AI
-        </Text>
-      </Billboard>
+      <PlazaCard />
     </group>
   );
 }
