@@ -30,7 +30,7 @@ export default function SiteLayout({
       <SocialSidebar />
       <ScrollProgress />
       <ScrollIndicator />
-      <PlayPill />
+      {/* <PlayPill /> */}
 
       {/* Persistent, fixed nav — must stay OUTSIDE RouteTransition/SmoothScroll */}
       <Navbar />

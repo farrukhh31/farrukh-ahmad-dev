@@ -10,6 +10,7 @@ import { useGame } from "@/lib/game/store";
 import { ZONE_BY_ID } from "@/lib/game/zones";
 import { Text } from "@react-three/drei";
 import { Projects } from "@/components/Projects/Projects-s";
+import { story } from "@/components/About/StoryData";
 import { experience } from "@/components/Experience/ExperiencedData";
 import { certificates } from "@/components/certificates/certificatesData";
 import { FONT_BOLD } from "./Glow";
@@ -47,28 +48,180 @@ function Neon({ color, intensity = 2.5 }: { color: string; intensity?: number })
 
 /* ---------------- individual blockouts (local +Z faces the plaza) ---------------- */
 
+/** Faces of the 8-sided shaft that carry a lit window, from the base up (radius shrinks as the tower tapers). */
+const TOWER_WINDOW_BANDS = [1.6, 3.7, 5.8] as const;
+const TOWER_SIDES = 8;
+
+/**
+ * The Origin Tower: a stepped plinth, a tapering shaft with lit window bands, a gyroscope of
+ * chapter shards around a floating crystal, and a beam that reaches into the sky. It reacts to
+ * the player: stand close and the crystal spins up, the shards speed along and the beam brightens.
+ */
 function OriginTower({ color }: { color: string }) {
   const crystal = useRef<THREE.Mesh>(null);
-  useFrame((_, dt) => {
-    if (motion.reduced) return;
-    if (crystal.current) crystal.current.rotation.y += dt * 0.8;
+  const gyroA = useRef<THREE.Mesh>(null);
+  const gyroB = useRef<THREE.Mesh>(null);
+  const shards = useRef<THREE.Group>(null);
+  const beamMat = useRef<THREE.MeshBasicMaterial>(null);
+  const pulse = useRef<THREE.Mesh>(null);
+  const pulseMat = useRef<THREE.MeshBasicMaterial>(null);
+  const windows = useRef<THREE.InstancedMesh>(null);
+  const near = useRef(0);
+
+  // the lit windows: one instanced mesh for all of them (a single draw call on a phone)
+  useEffect(() => {
+    const mesh = windows.current;
+    if (!mesh) return;
+    const o = new THREE.Object3D();
+    let i = 0;
+    for (const y of TOWER_WINDOW_BANDS) {
+      const r = 2.2 - 0.7 * (y / 8); // shaft radius at this height
+      const apothem = r * Math.cos(Math.PI / TOWER_SIDES) + 0.03; // distance to the middle of a flat face
+      for (let k = 0; k < TOWER_SIDES; k++) {
+        const a = ((k + 0.5) * Math.PI * 2) / TOWER_SIDES;
+        o.position.set(Math.sin(a) * apothem, y, Math.cos(a) * apothem);
+        o.rotation.set(0, a, 0);
+        o.scale.setScalar(1 - (y / 8) * 0.25);
+        o.updateMatrix();
+        mesh.setMatrixAt(i++, o.matrix);
+      }
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }, []);
+
+  const glass = useMemo(() => glowColor(color, 1.7), [color]);
+
+  useFrame((state, dt) => {
+    const t = state.clock.elapsedTime;
+    const calm = motion.reduced;
+    const want = useGame.getState().activeZone === "about" ? 1 : 0;
+    near.current += (want - near.current) * (1 - Math.exp(-dt * (calm ? 12 : 3)));
+    const n = near.current;
+    const night = 1 - atmosphere.day;
+
+    if (crystal.current) {
+      if (!calm) crystal.current.rotation.y += dt * (0.8 + n * 2.2);
+      const s = 1 + n * 0.3 + (calm ? 0 : Math.sin(t * 2.2) * 0.04);
+      crystal.current.scale.setScalar(s);
+      crystal.current.position.y = 10.2 + (calm ? 0 : Math.sin(t * 1.1) * 0.18);
+    }
+    if (!calm) {
+      if (gyroA.current) gyroA.current.rotation.x += dt * (0.5 + n * 0.8);
+      if (gyroB.current) gyroB.current.rotation.z -= dt * (0.4 + n * 0.7);
+      if (shards.current) shards.current.rotation.y += dt * (0.35 + n * 0.9);
+    }
+    if (beamMat.current) {
+      beamMat.current.opacity = (0.1 + (calm ? 0 : Math.sin(t * 1.4) * 0.03)) * (0.5 + 0.5 * night) + n * 0.16;
+    }
+    // a soft ring that radiates out across the plinth, faster once the player is close
+    if (pulse.current && pulseMat.current) {
+      const period = n > 0.5 ? 1.6 : 3;
+      const p = calm ? 0.5 : (t % period) / period;
+      pulse.current.scale.setScalar(1 + p * 0.9);
+      pulseMat.current.opacity = (1 - p) * (0.3 + n * 0.35);
+    }
   });
+
   return (
     <group>
-      <mesh position={[0, 4, 0]}>
-        <cylinderGeometry args={[1.5, 2.2, 8, 8]} />
+      {/* stepped plinth (its radius matches the building's collision footprint) */}
+      <mesh position={[0, 0.17, 0]}>
+        <cylinderGeometry args={[3.1, 3.3, 0.34, 8]} />
         <Body />
       </mesh>
-      {[1.5, 4, 6.5].map((y) => (
-        <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[1.9 - y * 0.05, 0.07, 8, 48]} />
-          <Neon color={color} />
-        </mesh>
-      ))}
-      <mesh ref={crystal} position={[0, 9.6, 0]}>
-        <octahedronGeometry args={[1, 0]} />
-        <Neon color={color} />
+      <mesh position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[2.7, 2.9, 0.32, 8]} />
+        <Body />
       </mesh>
+      <mesh position={[0, 0.69, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[2.55, 2.68, 64]} />
+        <Neon color={color} intensity={1.6} />
+      </mesh>
+      <mesh ref={pulse} position={[0, 0.06, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[3.3, 3.5, 64]} />
+        <meshBasicMaterial ref={pulseMat} color={glass} transparent opacity={0.3} depthWrite={false} toneMapped={false} />
+      </mesh>
+
+      <group position={[0, 0.66, 0]}>
+        {/* shaft */}
+        <mesh position={[0, 4, 0]}>
+          <cylinderGeometry args={[1.5, 2.2, 8, TOWER_SIDES]} />
+          <Body />
+        </mesh>
+        {/* four buttress fins at the foot */}
+        {[0, 1, 2, 3].map((k) => {
+          const a = (k * Math.PI) / 2;
+          return (
+            <mesh key={k} position={[Math.sin(a) * 2.35, 1.5, Math.cos(a) * 2.35]} rotation={[0, a, 0]}>
+              <boxGeometry args={[0.4, 3, 1.1]} />
+              <Body />
+            </mesh>
+          );
+        })}
+        {/* lit window bands */}
+        <instancedMesh ref={windows} args={[undefined, undefined, TOWER_WINDOW_BANDS.length * TOWER_SIDES]}>
+          <planeGeometry args={[0.55, 0.95]} />
+          <meshBasicMaterial color={glass} toneMapped={false} />
+        </instancedMesh>
+        {/* neon rings */}
+        {[1.5, 4, 6.5].map((y) => (
+          <mesh key={y} position={[0, y, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.9 - y * 0.05, 0.07, 8, 48]} />
+            <Neon color={color} />
+          </mesh>
+        ))}
+        {/* crown and the pedestal the crystal floats above */}
+        <mesh position={[0, 8.15, 0]}>
+          <cylinderGeometry args={[1.75, 1.5, 0.3, TOWER_SIDES]} />
+          <Body />
+        </mesh>
+        <mesh position={[0, 8.8, 0]}>
+          <cylinderGeometry args={[0.2, 0.55, 1.0, 8]} />
+          <Body />
+        </mesh>
+
+        {/* the crystal, with a two-ring gyroscope and one shard per story chapter */}
+        <mesh ref={crystal} position={[0, 10.2, 0]}>
+          <octahedronGeometry args={[1, 0]} />
+          <Neon color={color} intensity={3} />
+        </mesh>
+        <group position={[0, 10.2, 0]}>
+          <mesh ref={gyroA} rotation={[Math.PI / 3, 0, 0]}>
+            <torusGeometry args={[1.7, 0.035, 6, 64]} />
+            <Neon color={color} intensity={1.6} />
+          </mesh>
+          <mesh ref={gyroB} rotation={[0, 0, Math.PI / 3]}>
+            <torusGeometry args={[2.1, 0.03, 6, 64]} />
+            <Neon color={color} intensity={1.3} />
+          </mesh>
+          <group ref={shards}>
+            {story.map((c, i) => {
+              const a = (i * Math.PI * 2) / story.length;
+              return (
+                <mesh key={c.id} position={[Math.sin(a) * 2.6, Math.sin(a * 2) * 0.5, Math.cos(a) * 2.6]} rotation={[a, a, 0]} scale={0.26}>
+                  <octahedronGeometry args={[1, 0]} />
+                  <Neon color={color} intensity={2.2} />
+                </mesh>
+              );
+            })}
+          </group>
+        </group>
+
+        {/* sky beam: tells you where the Origin Tower is from anywhere on the archipelago */}
+        <mesh position={[0, 30, 0]}>
+          <cylinderGeometry args={[0.3, 1.1, 40, 20, 1, true]} />
+          <meshBasicMaterial
+            ref={beamMat}
+            color={glass}
+            transparent
+            opacity={0.1}
+            side={THREE.DoubleSide}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }

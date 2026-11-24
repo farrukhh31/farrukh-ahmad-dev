@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 import AvatarPlaceholder from "./AvatarPlaceholder";
-import { isRunning, playerState } from "@/lib/game/input";
+import { playerState } from "@/lib/game/input";
 import { useGame } from "@/lib/game/store";
 import { EMOTES, applyGesture, envelope, findBones, hopFor, type EmoteName } from "@/lib/game/gestures";
 
@@ -115,9 +115,10 @@ function AvatarModel({ scene, animations }: { scene: THREE.Object3D; animations:
     if (playerState.moving) {
       waving.current = false;
       play("Walk");
-      const run = isRunning();
       const walk = actions.Walk;
-      if (walk) walk.setEffectiveTimeScale(THREE.MathUtils.lerp(walk.timeScale, run ? 2.6 : 1.8, 0.2));
+      // follow the real ground speed: a slow thumb-stick walk gets a slow stride
+      const want = THREE.MathUtils.clamp(playerState.speed * 0.2, 0.7, 2.8);
+      if (walk) walk.setEffectiveTimeScale(THREE.MathUtils.lerp(walk.timeScale, want, 0.2));
     } else if (waving.current) {
       play("Wave");
     } else {

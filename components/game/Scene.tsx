@@ -7,6 +7,7 @@ import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 
 import { motion } from "@/lib/game/atmosphere";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useGame } from "@/lib/game/store";
 import World from "./World";
 import Atmosphere from "./Atmosphere";
@@ -26,7 +27,10 @@ export default function Scene() {
   const setQuality = useGame((s) => s.setQuality);
   const high = quality === "high";
   // render-resolution cap that backs off automatically when the frame rate drops
+  // phones have 3x screens but small GPUs: render fewer pixels and fewer sparkles
+  const coarse = useMediaQuery("(pointer: coarse)");
   const [dprMax, setDprMax] = useState(1.5);
+  const dprCap = coarse ? Math.min(dprMax, 1.25) : dprMax;
   const systemReduced = useReducedMotion();
   const motionPref = useGame((s) => s.motionPref);
   const reduced = systemReduced || motionPref === "reduce";
@@ -37,9 +41,9 @@ export default function Scene() {
 
   return (
     <Canvas
-      dpr={high ? [1, dprMax] : [1, 1]}
+      dpr={high ? [1, dprCap] : [1, 1]}
       camera={{ fov: 50, near: 0.5, far: 300, position: [0, 12, 26] }}
-      gl={{ antialias: high, powerPreference: "high-performance" }}
+      gl={{ antialias: high && !coarse, powerPreference: "high-performance" }}
       aria-label="Interactive 3D portfolio world. Use the on-screen menu or Recruiter Mode for a non-game view."
     >
       <Atmosphere />
@@ -70,8 +74,8 @@ export default function Scene() {
         <NightStars high={high} still={reduced} />
         {high && !reduced && (
           <>
-            <Sparkles count={120} scale={[70, 14, 70]} size={3} speed={0.3} color="#67e8f9" position={[0, 6, 0]} />
-            <Sparkles count={70} scale={[90, 20, 90]} size={5} speed={0.18} color="#fde68a" position={[0, 8, 0]} />
+            <Sparkles count={coarse ? 50 : 120} scale={[70, 14, 70]} size={3} speed={0.3} color="#67e8f9" position={[0, 6, 0]} />
+            <Sparkles count={coarse ? 30 : 70} scale={[90, 20, 90]} size={5} speed={0.18} color="#fde68a" position={[0, 8, 0]} />
           </>
         )}
       </Suspense>

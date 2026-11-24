@@ -49,7 +49,7 @@ export default function ZonePanel() {
   const next = ZONES[(at + 1) % ZONES.length];
 
   return (
-    <div className="absolute inset-0 z-30 grid place-items-center bg-[radial-gradient(ellipse_at_center,rgba(3,7,18,0.55),rgba(3,7,18,0.88))] p-2.5 backdrop-blur-md sm:p-6" onClick={() => close(null)}>
+    <div className="absolute inset-0 z-30 grid place-items-end bg-[radial-gradient(ellipse_at_center,rgba(3,7,18,0.55),rgba(3,7,18,0.88))] p-0 pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] backdrop-blur-md sm:place-items-center sm:p-6" onClick={() => close(null)}>
       <div
         ref={dialogRef}
         onKeyDown={onKeyDown}
@@ -57,16 +57,17 @@ export default function ZonePanel() {
         aria-modal="true"
         aria-labelledby="zone-title"
         onClick={(e) => e.stopPropagation()}
-        className="panel-pop relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[28px] md:h-[min(80vh,760px)] md:flex-row"
+        className="panel-pop zone-sheet relative mx-auto flex max-h-[94dvh] w-full max-w-5xl flex-col overflow-hidden rounded-b-none rounded-t-[28px] sm:rounded-[28px] md:h-[min(80dvh,760px)] md:flex-row"
         style={{
           background: `radial-gradient(900px circle at 0% 0%, ${zone.color}2b, transparent 55%), radial-gradient(700px circle at 100% 100%, #8b5cf622, transparent 55%), rgba(6,10,22,0.96)`,
           boxShadow: `0 0 0 1px ${zone.color}44, 0 40px 120px -20px ${zone.color}55, inset 0 1px 0 rgba(255,255,255,0.08)`,
         }}
       >
+        <span aria-hidden className="absolute left-1/2 top-2 z-20 h-1 w-10 -translate-x-1/2 rounded-full bg-white/25 sm:hidden" />
         <button
           onClick={() => close(null)}
           aria-label="Close panel"
-          className="pm-btn !absolute right-4 top-4 z-20 !h-11 !rounded-full !bg-black/25 !text-white backdrop-blur hover:!bg-black/40"
+          className="pm-btn !absolute right-3 top-4 z-20 !h-11 !min-w-11 !rounded-full !bg-black/30 !text-white backdrop-blur hover:!bg-black/40 sm:right-4"
         >
           <X size={18} />
           <span className="hidden sm:inline">Close</span>
@@ -74,7 +75,7 @@ export default function ZonePanel() {
         </button>
 
         {/* Identity rail */}
-        <aside className="relative shrink-0 overflow-hidden border-b border-white/10 p-5 pr-28 md:pr-8 md:flex md:w-[300px] md:flex-col md:border-b-0 md:border-r md:p-8">
+        <aside className="relative shrink-0 overflow-hidden border-b border-white/10 px-5 pb-4 pr-20 pt-6 sm:p-5 sm:pr-28 md:flex md:w-[300px] md:flex-col md:border-b-0 md:border-r md:p-8 [@media(max-height:520px)]:md:w-[240px] [@media(max-height:520px)]:md:p-5">
           <span
             aria-hidden
             className="pointer-events-none absolute -bottom-6 -left-3 hidden select-none font-mono text-[10rem] font-black leading-none tracking-tighter md:block"
@@ -129,9 +130,29 @@ export default function ZonePanel() {
         </aside>
 
         {/* Content */}
-        <div className="panel-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 md:p-8">
+        <div className="panel-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 md:p-8 [@media(max-height:520px)]:md:p-5">
           <Body />
         </div>
+
+        {/* phones and small tablets: previous / next zone sit under the content, in thumb reach */}
+        <nav aria-label="Zone navigation" className="grid shrink-0 grid-cols-2 gap-2 border-t border-white/10 bg-black/20 p-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] md:hidden">
+          <button
+            onClick={() => close(prev.id)}
+            aria-label={`Previous zone: ${prev.name}`}
+            className="flex min-h-12 touch-manipulation items-center gap-2 rounded-2xl bg-white/[0.06] px-3.5 text-left text-white transition active:scale-[0.98]"
+          >
+            <ArrowLeft size={16} className="shrink-0 text-slate-400" />
+            <span className="min-w-0 truncate text-[13px] font-semibold">{prev.name}</span>
+          </button>
+          <button
+            onClick={() => close(next.id)}
+            aria-label={`Next zone: ${next.name}`}
+            className="flex min-h-12 touch-manipulation items-center justify-end gap-2 rounded-2xl bg-white/[0.06] px-3.5 text-right text-white transition active:scale-[0.98]"
+          >
+            <span className="min-w-0 truncate text-[13px] font-semibold">{next.name}</span>
+            <ArrowRight size={16} className="shrink-0 text-slate-400" />
+          </button>
+        </nav>
       </div>
     </div>
   );

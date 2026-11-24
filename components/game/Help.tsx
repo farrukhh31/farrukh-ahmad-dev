@@ -67,7 +67,7 @@ export function HelpDialog() {
         <section className="mt-6 rounded-2xl p-4" style={{ background: "var(--pm-raise)" }}>
           <h3 className="pm-ink flex items-center gap-2 text-sm font-semibold"><Hand size={16} /> Touch</h3>
           <p className="pm-muted mt-1.5 text-[13px] leading-relaxed">
-            Drag the left stick to move, and push it all the way out to run. Tap <b className="pm-ink">Enter</b> when it appears at a zone.
+            Drag the left stick to walk; the further you push, the faster you go. Tap the <b className="pm-ink">double-arrow</b> button next to it to sprint. Drag anywhere else to turn the camera, pinch with two fingers to zoom, and tap <b className="pm-ink">Enter</b> when it appears at a zone.
           </p>
         </section>
 

@@ -4,7 +4,15 @@ import { Suspense, useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { isRunning, playerState, readMoveVector } from "@/lib/game/input";
+import {
+  RUN_MULTIPLIER_KEYS,
+  RUN_MULTIPLIER_TOUCH,
+  WALK_SPEED_KEYS,
+  WALK_SPEED_TOUCH,
+  isRunning,
+  playerState,
+  readMoveVector,
+} from "@/lib/game/input";
 import { useGame } from "@/lib/game/store";
 import { isWalkable } from "@/lib/game/layout";
 import { isZoneId, travelToZone } from "@/lib/game/travel";
@@ -12,8 +20,6 @@ import { SPAWN, ZONES, ZoneId } from "@/lib/game/zones";
 import Avatar from "./Avatar";
 import AvatarPlaceholder from "./AvatarPlaceholder";
 
-const WALK_SPEED = 8;
-const RUN_MULTIPLIER = 1.7;
 const PLAYER_RADIUS = 0.6;
 
 const shortestAngle = (from: number, to: number) => {
@@ -51,17 +57,21 @@ export default function Player() {
     }
 
     // movement
-    const intent = locked ? { x: 0, z: 0 } : readMoveVector();
+    const intent = locked ? { x: 0, z: 0, touch: false } : readMoveVector();
     // rotate the input so "up" always means "away from the camera"
     const cy = Math.cos(playerState.camYaw);
     const sy = Math.sin(playerState.camYaw);
     const move = { x: intent.x * cy + intent.z * sy, z: -intent.x * sy + intent.z * cy };
     const mag = Math.hypot(move.x, move.z);
     playerState.moving = mag > 0.05;
+    if (!playerState.moving) playerState.speed = 0;
 
     if (playerState.moving) {
       const run = isRunning();
-      const speed = WALK_SPEED * (run ? RUN_MULTIPLIER : 1);
+      const walk = intent.touch ? WALK_SPEED_TOUCH : WALK_SPEED_KEYS;
+      const boost = intent.touch ? RUN_MULTIPLIER_TOUCH : RUN_MULTIPLIER_KEYS;
+      const speed = walk * (run ? boost : 1);
+      playerState.speed = speed * Math.min(1, mag);
       let nx = playerState.x + move.x * speed * dt;
       let nz = playerState.z + move.z * speed * dt;
 

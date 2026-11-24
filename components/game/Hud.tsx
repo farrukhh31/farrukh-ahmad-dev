@@ -485,7 +485,7 @@ function InteractPrompt() {
   if (!active || panel) return null;
   const zone = ZONES.find((z) => z.id === active)!;
   return (
-    <div key={zone.id} className="pm-rise pointer-events-none absolute inset-x-0 bottom-[max(11rem,env(safe-area-inset-bottom))] flex justify-center px-3 lg:bottom-5">
+    <div key={zone.id} className="pm-rise pm-land-prompt pointer-events-none absolute inset-x-0 bottom-[calc(max(11rem,env(safe-area-inset-bottom))+0.5rem)] flex justify-center px-3 lg:bottom-5">
       <div
         className="pm-panel pointer-events-auto flex w-[min(32rem,100%)] items-center gap-3.5 rounded-[28px] p-3 pl-3.5"
         style={{ ...accent(zone.color), boxShadow: `var(--pm-shadow), 0 0 44px -10px ${zone.color}88` }}
@@ -519,7 +519,7 @@ function XpToast() {
   if (!gain || dismissed === gain.at) return null;
   const big = gain.kind === "achievement";
   return (
-    <div key={gain.at} aria-hidden className="pm-rise pointer-events-none absolute bottom-[16.5rem] left-1/2 lg:bottom-[7.75rem] max-w-[92vw] -translate-x-1/2">
+    <div key={gain.at} aria-hidden className="pm-rise pm-land-toast pointer-events-none absolute bottom-[16.5rem] left-1/2 lg:bottom-[7.75rem] max-w-[92vw] -translate-x-1/2">
       <div className="pm-panel flex items-center gap-3 rounded-2xl py-2 pl-2 pr-5" style={big ? { boxShadow: "var(--pm-shadow), 0 0 0 2px rgba(251,191,36,0.55)" } : undefined}>
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-400/25 text-amber-500">
           <Sparkles size={18} />

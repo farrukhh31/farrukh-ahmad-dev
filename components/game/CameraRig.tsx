@@ -21,7 +21,8 @@ const ZOOM_DEFAULT = 0.42;
 const ORBIT_SPEED = 1.9; // rad/s while an arrow key is held
 const ZOOM_SPEED = 0.7; // zoom units/s while an arrow key is held
 const WHEEL_ZOOM = 0.0011; // zoom units per wheel pixel
-const DRAG_ORBIT = 0.0055; // rad per pixel of mouse / finger drag
+const DRAG_ORBIT = 0.0055; // rad per pixel of mouse drag
+const DRAG_ORBIT_TOUCH = 0.0072; // fingers travel less than a mouse, so each pixel turns the view a bit more
 
 const BASE_FOV = 50;
 const RUN_FOV = 56;
@@ -35,6 +36,7 @@ const HOVER_LOOK = 1.0;
 const FOCUS: Partial<Record<ZoneId, { y: number; w: number; h: number }>> = {
   cinema: { y: 4, w: 11.5, h: 6.8 }, // 7.6 x 4.4 screen plus margin
   plaza: { y: 4.8, w: 10, h: 6 },
+  about: { y: 5.2, w: 9, h: 11.5 }, // the Origin Tower is tall: frame the shaft and the crystal together
 };
 const DEFAULT_FOCUS = { y: 3.6, w: 10, h: 8 };
 
@@ -109,8 +111,23 @@ export default function CameraRig() {
     };
     let dragging = false;
     let lastX = 0;
+    // two-finger pinch zoom (touch): track every finger that is on the canvas
+    const fingers = new Map<number, { x: number; y: number }>();
+    let pinchStart = 0;
+    let pinchZoom = 0;
+    const spread = () => {
+      const [a, b] = [...fingers.values()];
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    };
     const down = (e: PointerEvent) => {
       if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (e.pointerType === "touch") {
+        fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (fingers.size === 2) {
+          pinchStart = spread();
+          pinchZoom = zoomTarget.current;
+        }
+      }
       dragging = true;
       lastX = e.clientX;
     };
@@ -119,15 +136,33 @@ export default function CameraRig() {
         hover.current.x = (e.clientX / window.innerWidth) * 2 - 1;
         hover.current.y = -((e.clientY / window.innerHeight) * 2 - 1);
       }
+      if (e.pointerType === "touch" && fingers.has(e.pointerId)) {
+        fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (fingers.size === 2 && pinchStart > 0) {
+          const g = useGame.getState();
+          if (!g.openPanel && !g.helpOpen && !g.settingsOpen) {
+            // fingers apart = zoom in, together = zoom out
+            zoomTarget.current = clamp(pinchZoom - (spread() / pinchStart - 1) * 0.7, 0, 1);
+          }
+          lastX = e.clientX;
+          return;
+        }
+      }
       if (!dragging) return;
       const dx = e.clientX - lastX;
       lastX = e.clientX;
       const g = useGame.getState();
       if (g.openPanel || g.helpOpen || g.settingsOpen) return;
-      if (shotActive.current) nudge.current = clamp(nudge.current + dx * DRAG_ORBIT, -0.9, 0.9);
-      else yawTarget.current += dx * DRAG_ORBIT;
+      const k = e.pointerType === "touch" ? DRAG_ORBIT_TOUCH : DRAG_ORBIT;
+      if (shotActive.current) nudge.current = clamp(nudge.current + dx * k, -0.9, 0.9);
+      else yawTarget.current += dx * k;
     };
-    const up = () => (dragging = false);
+    const up = (e: PointerEvent) => {
+      fingers.delete(e.pointerId);
+      if (fingers.size < 2) pinchStart = 0;
+      if (e.pointerType !== "touch" || fingers.size === 0) dragging = false;
+      else lastX = [...fingers.values()][0].x; // the remaining finger carries on orbiting from where it is
+    };
     const leave = () => {
       hover.current.x = 0;
       hover.current.y = 0;

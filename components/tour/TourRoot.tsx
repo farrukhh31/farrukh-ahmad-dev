@@ -92,7 +92,7 @@ export default function TourRoot() {
 
   if (!webgl) {
     return (
-      <div className="grid min-h-screen place-items-center bg-[#bcd6dc] p-6 text-center text-slate-900">
+      <div className="grid min-h-dvh place-items-center bg-[#bcd6dc] p-6 text-center text-slate-900">
         <div>
           <h1 className="text-xl font-semibold">3D isn&apos;t available on this device</h1>
           <p className="mt-2 text-slate-700">Your browser couldn&apos;t start WebGL, so the flight can&apos;t run.</p>

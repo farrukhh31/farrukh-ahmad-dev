@@ -59,7 +59,7 @@ export default function GameRoot() {
 
   if (!webgl) {
     return (
-      <div className="grid min-h-screen place-items-center p-6 text-center">
+      <div className="grid min-h-dvh place-items-center p-6 text-center">
         <div>
           <h1 className="text-xl font-semibold text-white">3D isn&apos;t available on this device</h1>
           <p className="mt-2 text-slate-400">Your browser couldn&apos;t start WebGL, so the playable world can&apos;t run.</p>

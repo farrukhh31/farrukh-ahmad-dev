@@ -6,6 +6,23 @@ from pathlib import Path
 BASE = Path(__file__).resolve().parent.parent
 
 
+def _load_dotenv(path: Path) -> None:
+    """Tiny .env reader (no extra dependency). Real environment variables always win."""
+    if not path.is_file():
+        return
+    for raw in path.read_text(encoding="utf-8-sig").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip("\"'")
+        if key and value:  # skip blank values so `MIN_SCORE=` doesn't break float()
+            os.environ.setdefault(key, value)
+
+
+_load_dotenv(BASE / ".env")
+
+
 def _list(name: str, default: str) -> list[str]:
     return [x.strip() for x in os.getenv(name, default).split(",") if x.strip()]
 

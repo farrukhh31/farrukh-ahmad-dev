@@ -45,7 +45,7 @@ export default function RecruiterSnapshot() {
       id="Recruiter"
       className="
         relative
-        min-h-screen
+        min-h-dvh
         overflow-hidden
         px-4
         py-8
