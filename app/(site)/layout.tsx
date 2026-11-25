@@ -7,7 +7,6 @@ import RouteProgressBar from "@/components/hero/transitions/RouteProgressBar";
 
 import Navbar from "@/components/Navbar/navbar";
 import ScrollProgress from "@/components/Navbar/ScrollProgress";
-import ScrollIndicator from "@/components/ScrollIndicator";
 
 import Cursor from "@/components/Cursor/cursor";
 import SocialSidebar from "@/components/SocialSidebar/SocialSidebar";
@@ -29,8 +28,7 @@ export default function SiteLayout({
       <Cursor />
       <SocialSidebar />
       <ScrollProgress />
-      <ScrollIndicator />
-      {/* <PlayPill /> */}
+      <PlayPill />
 
       {/* Persistent, fixed nav — must stay OUTSIDE RouteTransition/SmoothScroll */}
       <Navbar />
