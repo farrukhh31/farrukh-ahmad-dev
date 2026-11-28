@@ -17,7 +17,7 @@ export const recruiterData = {
       },
       {
         label: "Experience",
-        value: "3+ Internships",
+        value: "4+ Internships",
       },
       {
         label: "Projects",
@@ -44,7 +44,7 @@ export const recruiterData = {
     },
     {
       label: "Internships",
-      value: 3,
+      value: 4,
       suffix: "",
     },
     {

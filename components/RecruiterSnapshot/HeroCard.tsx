@@ -66,7 +66,7 @@ export default function HeroCard() {
             </p>
 
             <p className="mt-2 text-sm sm:text-base font-semibold text-white">
-              3+ Internships
+              4+ Internships
             </p>
           </div>
 

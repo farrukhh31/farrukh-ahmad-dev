@@ -38,7 +38,7 @@ export const DESCRIPTION_WORDS: Array<[string, boolean]> = [
 export const STATS = [
   {
     id: "projects",
-    target: 8,
+    target: 9,
     suffix: "+",
     label: "Projects",
     icon: "layers",

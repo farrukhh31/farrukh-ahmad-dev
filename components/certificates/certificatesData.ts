@@ -220,6 +220,39 @@ export const certificates: Certificate[] = [
 },
 
   {
+    id: "zenvyro-fullstack",
+
+    title: "Full Stack Web Internship",
+
+    issuer: "Zenvyro Labs (Pvt) Ltd.",
+
+    year: "2026",
+
+    category: "web-dev",
+
+    status: "completed",
+
+    description:
+      "Completed a one-month Full Stack Web Internship (13 July – 13 August 2026) at Zenvyro Labs, recognised for dedication, consistency and a strong willingness to learn and contribute while building full-stack web applications.",
+
+    skills: [
+      "React",
+      "Next.js",
+      "Node.js",
+      "Express.js",
+      "PostgreSQL",
+      "REST APIs",
+      "Git",
+    ],
+
+    image: "/Zenvyro-Certificate.jpg",
+
+    pdf: "/Zenvyro-Certificate.jpg",
+
+    credentialId: "ZEN-INT-2026-1621",
+  },
+
+  {
     id: "ml-specialization",
 
     title: "Machine Learning Specialization",

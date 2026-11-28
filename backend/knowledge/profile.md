@@ -8,7 +8,7 @@ Farrukh is a developer and student. I build intelligent, scalable, and immersive
 Farrukh works across these roles: Full Stack Developer, AI Engineer, Frontend Developer, Backend Developer, DevOps & Automation, Game Developer, AR/VR Developer, Python Developer, Creative Developer.
 
 ## Quick stats
-- Projects: 8+
+- Projects: 9+
 - Technologies: 20+
 - Years learning: 3+
 

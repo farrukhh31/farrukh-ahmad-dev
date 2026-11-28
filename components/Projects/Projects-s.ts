@@ -22,6 +22,92 @@ export type Project = {
 
 export const Projects: Project[] = [
   {
+    slug: "waypoint-project-management",
+    title: "Waypoint - Project Management Platform",
+
+    description:
+      "A full-stack project management and team collaboration platform covering projects, tasks, meetings and teams, with real-time notifications, time tracking and role-based access control.",
+
+    image: "/images/Waypoint.png",
+    hoverImage: "/images/Waypoint-hover.png",
+
+    highlight:
+      "Decoupled React SPA and Express REST API with JWT access/refresh tokens, optional two-factor authentication, task dependencies, email invites and Socket.IO real-time activity updates.",
+
+    technologies: [
+      "React",
+      "Vite",
+      "Node.js",
+      "Express.js",
+      "PostgreSQL",
+      "Socket.IO"
+    ],
+
+    category: "webdev",
+
+    github: "https://github.com/farrukhh31/waypoint-project-management",
+    demo: "https://waypoint-project-management.vercel.app/",
+
+    featured: true,
+  },
+  {
+    slug: "lumiere-ecommerce",
+    title: "Lumière - Skincare E-Commerce Platform",
+
+    description:
+      "A premium skincare and cosmetics e-commerce platform with a customer storefront, secure checkout flow and an admin dashboard for products, orders, coupons, customers and inventory.",
+
+    image: "/images/Lumiere.jpg",
+    hoverImage: "/images/Lumiere-hover.jpg",
+
+    highlight:
+      "Three-tier architecture (Next.js, Express, PostgreSQL via Prisma) with server-side price, discount and stock validation, JWT auth with refresh-token revocation, and revenue analytics for admins.",
+
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "Node.js",
+      "Express.js",
+      "PostgreSQL",
+      "Prisma"
+    ],
+
+    category: "webdev",
+
+    github: "https://github.com/farrukhh31/lumiere-ecommerce",
+    demo: "https://lumiere-store-lovat.vercel.app/",
+
+    featured: true,
+  },
+  {
+    slug: "coin-drift",
+    title: "Coin Drift - Secure 3D Browser Game",
+
+    description:
+      "A 3D browser game where players slide a glowing cube across five themed floating worlds collecting coins, backed by secure login, two-step verification and a player dashboard with stats, achievements and leaderboards.",
+
+    image: "/images/CoinDrift.png",
+    hoverImage: "/images/CoinDrift-hover.png",
+
+    highlight:
+      "Server-calculated stats with one-time run tokens for anti-cheat, TOTP two-factor authentication, bcrypt with a secret pepper, rate limiting and Docker-ready deployment.",
+
+    technologies: [
+      "Three.js",
+      "JavaScript",
+      "Node.js",
+      "Express.js",
+      "SQLite",
+      "Docker"
+    ],
+
+    category: "gamedev",
+
+    github: "https://github.com/farrukhh31/coin-drift",
+
+    featured: true,
+  },
+  {
     slug: "developer-portfolio",
     title: "Developer Portfolio",
 

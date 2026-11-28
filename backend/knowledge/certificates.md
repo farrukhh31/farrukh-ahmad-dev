@@ -1,7 +1,7 @@
 <!-- zone: trophy | title: Certificates & Achievements -->
 # Certificates and achievements
 
-Farrukh has 7 completed certificates and 2 in progress. Completed: Pre-Production for Games & Animation; Unreal Engine Development; Generative AI Certification; DevOps and Automation Internship; Global Game Jam Competition - 4th Place; Frontend Development Internship; Full Stack Development Internship. In progress: Machine Learning Specialization; Backend Development.
+Farrukh has 8 completed certificates and 2 in progress. Completed: Pre-Production for Games & Animation; Unreal Engine Development; Generative AI Certification; DevOps and Automation Internship; Global Game Jam Competition - 4th Place; Frontend Development Internship; Full Stack Development Internship; Full Stack Web Internship. In progress: Machine Learning Specialization; Backend Development.
 
 ## Certificate: Pre-Production for Games & Animation
 Issued by CGEA — Centre of Excellence in Gaming & Animation in 2025. Status: completed.
@@ -37,6 +37,11 @@ Skills covered: React.js, JavaScript, HTML5, CSS3, Tailwind CSS, Responsive Desi
 Issued by Karachi Development Authority (KDA) in 2026. Status: completed.
 Completed a Full Stack Development internship focused on building responsive web applications, developing RESTful APIs, integrating databases, and implementing modern development practices across the frontend and backend.
 Skills covered: React, Next.js, Node.js, Express.js, MongoDB, REST APIs, JavaScript, Git.
+
+## Certificate: Full Stack Web Internship
+Issued by Zenvyro Labs (Pvt) Ltd. in 2026. Status: completed.
+Completed a one-month Full Stack Web Internship (13 July – 13 August 2026) at Zenvyro Labs, recognised for dedication, consistency and a strong willingness to learn and contribute while building full-stack web applications.
+Skills covered: React, Next.js, Node.js, Express.js, PostgreSQL, REST APIs, Git.
 
 ## Certificate: Machine Learning Specialization
 Issued by Coursera in 2026. Status: in progress.

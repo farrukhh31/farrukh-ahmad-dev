@@ -11,7 +11,7 @@ export const skills: Skill[] = [
     experience: "2+ Years",
     description:
       "Built reusable components, dashboards, responsive interfaces and animations.",
-    projects: ["Portfolio", "Employee Task Manager", "Internship Projects"],
+    projects: ["Portfolio", "Employee Task Manager", "Internship Projects", "Waypoint"],
     related: ["next", "typescript"],
   },
 
@@ -25,7 +25,7 @@ export const skills: Skill[] = [
     experience: "1+ Year",
     description:
       "Built production-ready applications using App Router and Server Components.",
-    projects: ["Portfolio"],
+    projects: ["Portfolio", "Lumière"],
     related: ["react", "typescript"],
   },
 
@@ -38,7 +38,7 @@ export const skills: Skill[] = [
     proficiency: 80,
     experience: "1+ Year",
     description: "Used throughout modern React and Next.js projects.",
-    projects: ["Portfolio"],
+    projects: ["Portfolio", "Lumière"],
     related: ["react", "next"],
   },
 
@@ -51,7 +51,7 @@ export const skills: Skill[] = [
     proficiency: 78,
     experience: "2 Years",
     description: "REST APIs, authentication and backend services.",
-    projects: ["Task Manager"],
+    projects: ["Task Manager", "Waypoint", "Lumière", "Coin Drift"],
     related: ["mongodb", "docker"],
   },
 
@@ -77,7 +77,7 @@ export const skills: Skill[] = [
     proficiency: 62,
     experience: "1 Year",
     description: "Containerization and deployment workflows.",
-    projects: ["DevOps Internship"],
+    projects: ["DevOps Internship", "Coin Drift"],
     related: ["linux"],
   },
 
@@ -130,7 +130,7 @@ export const skills: Skill[] = [
     proficiency: 88,
     experience: "2+ Years",
     description: "Core language behind React, Next.js and Node.js work.",
-    projects: ["Portfolio", "Employee Task Manager"],
+    projects: ["Portfolio", "Employee Task Manager", "Coin Drift"],
     related: ["react", "node", "typescript"],
   },
   {
@@ -230,7 +230,7 @@ export const skills: Skill[] = [
     proficiency: 76,
     experience: "2 Years",
     description: "Lightweight REST APIs and middleware on top of Node.js.",
-    projects: ["Task Manager"],
+    projects: ["Task Manager", "Waypoint", "Lumière"],
     related: ["node", "mongodb"],
   },
   {
@@ -280,7 +280,7 @@ export const skills: Skill[] = [
     proficiency: 74,
     experience: "1+ Year",
     description: "Relational database design, indexing and query optimization.",
-    projects: ["Task Manager"],
+    projects: ["Task Manager", "Waypoint", "Lumière"],
     related: ["sql", "mysql"],
   },
   {
@@ -304,7 +304,7 @@ export const skills: Skill[] = [
     proficiency: 65,
     experience: "1 Year",
     description: "Lightweight embedded database for prototypes and small apps.",
-    projects: ["Internship Projects"],
+    projects: ["Internship Projects", "Coin Drift"],
     related: ["sql"],
   },
   {

@@ -14,12 +14,11 @@ export const experience: ExperienceItem[] = [
     id: "zenvyrolabs",
     year: "2026",
     role: "Full Stack Web Development Intern",
-    company: "Internship",
+    company: "Zenvyro Labs (Pvt) Ltd.",
     description:
-      "Worked on modern full-stack web applications using React, Node.js, MongoDB and collaborative development workflows.",
-    technologies: ["React", "Node.js", "MongoDB", "Docker"],
+      "Completed a Full Stack Web Internship at Zenvyro Labs (13 July – 13 August 2026), building full-stack web applications with React, Node.js and Express, REST APIs, authentication and database-backed features in a collaborative team workflow.",
+    technologies: ["React", "Next.js", "Node.js", "Express.js", "PostgreSQL", "Git"],
     type: "work",
-    current: true,
   },
 
   {

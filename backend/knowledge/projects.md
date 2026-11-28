@@ -1,7 +1,30 @@
 <!-- zone: projects | title: Projects -->
 # Farrukh's projects
 
-Farrukh has built 6 showcased projects: Developer Portfolio; Mask Jam - Sound Based Stealth Game; Emotion-Aware AI Containment Lab; Frontend Development Projects; VR Pit Stop Game; Ragdoll Fighting Game.
+Farrukh has built 9 showcased projects: Waypoint - Project Management Platform; Lumière - Skincare E-Commerce Platform; Coin Drift - Secure 3D Browser Game; Developer Portfolio; Mask Jam - Sound Based Stealth Game; Emotion-Aware AI Containment Lab; Frontend Development Projects; VR Pit Stop Game; Ragdoll Fighting Game.
+
+## Project: Waypoint - Project Management Platform
+Category: webdev (featured project).
+A full-stack project management and team collaboration platform covering projects, tasks, meetings and teams, with real-time notifications, time tracking and role-based access control.
+Highlight: Decoupled React SPA and Express REST API with JWT access/refresh tokens, optional two-factor authentication, task dependencies, email invites and Socket.IO real-time activity updates.
+Technologies used: React, Vite, Node.js, Express.js, PostgreSQL, Socket.IO.
+Source code on GitHub: https://github.com/farrukhh31/waypoint-project-management
+Demo website: https://waypoint-project-management.vercel.app/
+
+## Project: Lumière - Skincare E-Commerce Platform
+Category: webdev (featured project).
+A premium skincare and cosmetics e-commerce platform with a customer storefront, secure checkout flow and an admin dashboard for products, orders, coupons, customers and inventory.
+Highlight: Three-tier architecture (Next.js, Express, PostgreSQL via Prisma) with server-side price, discount and stock validation, JWT auth with refresh-token revocation, and revenue analytics for admins.
+Technologies used: Next.js, TypeScript, Node.js, Express.js, PostgreSQL, Prisma.
+Source code on GitHub: https://github.com/farrukhh31/lumiere-ecommerce
+Demo website: https://lumiere-store-lovat.vercel.app/
+
+## Project: Coin Drift - Secure 3D Browser Game
+Category: gamedev (featured project).
+A 3D browser game where players slide a glowing cube across five themed floating worlds collecting coins, backed by secure login, two-step verification and a player dashboard with stats, achievements and leaderboards.
+Highlight: Server-calculated stats with one-time run tokens for anti-cheat, TOTP two-factor authentication, bcrypt with a secret pepper, rate limiting and Docker-ready deployment.
+Technologies used: Three.js, JavaScript, Node.js, Express.js, SQLite, Docker.
+Source code on GitHub: https://github.com/farrukhh31/coin-drift
 
 ## Project: Developer Portfolio
 Category: webdev (featured project).
